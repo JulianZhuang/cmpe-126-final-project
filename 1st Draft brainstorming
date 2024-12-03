@@ -1,0 +1,133 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <list>
+#include <map>
+#include <algorithm>
+#include <string>
+
+using namespace std;
+
+// Book struct
+struct Book {
+    int id;
+    string title;
+    string author;
+    bool isAvailable;
+
+    Book(int id, string title, string author) : id(id), title(title), author(author), isAvailable(true) {}
+};
+
+// User struct
+struct User {
+    int id;
+    string name;
+
+    User(int id, string name) : id(id), name(name) {}
+};
+
+// Library Class
+class Library {
+private:
+    vector<Book> books;                 // Book storage
+    list<User> users;                   // Dynamic user list
+    queue<pair<int, int>> borrowQueue;  // Queue for borrow requests
+
+public:
+    // Add a book
+    void addBook(int id, const string& title, const string& author) {
+        books.emplace_back(id, title, author);
+    }
+
+    // Add a user
+    void addUser(int id, const string& name) {
+        users.emplace_back(id, name);
+    }
+
+    // Borrow a book
+    void borrowBook(int userId, int bookId) {
+        borrowQueue.push({userId, bookId});
+    }
+
+    // Process borrow requests
+    void processBorrowRequests() {
+        while (!borrowQueue.empty()) {
+            auto request = borrowQueue.front();
+            borrowQueue.pop();
+            int userId = request.first;
+            int bookId = request.second;
+
+            auto book = find_if(books.begin(), books.end(), [bookId](const Book& b) { return b.id == bookId; });
+            if (book != books.end() && book->isAvailable) {
+                book->isAvailable = false;
+                cout << "User " << userId << " borrowed book: " << book->title << endl;
+            } else {
+                cout << "Book ID " << bookId << " is unavailable!" << endl;
+            }
+        }
+    }
+
+    // Search books by title
+    void searchBookByTitle(const string& title) {
+        auto it = find_if(books.begin(), books.end(), [&title](const Book& b) { return b.title == title; });
+        if (it != books.end()) {
+            cout << "Book found: " << it->title << " by " << it->author << endl;
+        } else {
+            cout << "Book not found!" << endl;
+        }
+    }
+
+    // Sort books by title
+    void sortBooksByTitle() {
+        sort(books.begin(), books.end(), [](const Book& a, const Book& b) {
+            return a.title < b.title;
+        });
+    }
+
+    // Display all books
+    void displayBooks() {
+        for (const auto& book : books) {
+            cout << book.id << ": " << book.title << " by " << book.author << " ("
+                 << (book.isAvailable ? "Available" : "Not Available") << ")" << endl;
+        }
+    }
+};
+
+int main() {
+    Library library;
+
+    // Add books
+    library.addBook(1, "1984", "George Orwell");
+    library.addBook(2, "The Catcher in the Rye", "J.D. Salinger");
+    library.addBook(3, "To Kill a Mockingbird", "Harper Lee");
+
+    // Add users
+    library.addUser(101, "Alice");
+    library.addUser(102, "Bob");
+
+    // Borrow books
+    library.borrowBook(101, 1);
+    library.borrowBook(102, 2);
+
+    // Display books before processing requests
+    cout << "\nBooks before processing borrow requests:\n";
+    library.displayBooks();
+
+    // Process borrow requests
+    cout << "\nProcessing borrow requests...\n";
+    library.processBorrowRequests();
+
+    // Display books after processing requests
+    cout << "\nBooks after processing borrow requests:\n";
+    library.displayBooks();
+
+    // Search and sort
+    cout << "\nSearching for '1984':\n";
+    library.searchBookByTitle("1984");
+
+    cout << "\nSorting books by title...\n";
+    library.sortBooksByTitle();
+    library.displayBooks();
+
+    return 0;
+}
