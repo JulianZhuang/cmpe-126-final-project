@@ -5,6 +5,8 @@
 #include <map>
 #include <algorithm>
 #include <string>
+#include <cstdlib> // For std::rand and std::srand
+#include <ctime>   // For std::time
 
 using namespace std;
 
@@ -77,11 +79,68 @@ public:
         }
     }
 
-    // Sort books by title
-    void sortBooksByTitle() {
+    // Sort books by id using the STL contanier sort alogorithim
+    void sortBooksByID() {
         sort(books.begin(), books.end(), [](const Book& a, const Book& b) {
-            return a.title < b.title;
+            return a.id < b.id;
         });
+    }
+    
+    // Sort books by author using bubble sort
+    void sortBooksByAuthor() {
+        for (size_t i = 0; i < books.size() - 1; ++i) {
+            for (size_t j = 0; j < books.size() - i - 1; ++j) {
+                if (books[j].author > books[j + 1].author) {
+                    // Swap the books if they are in the wrong order
+                    swap(books[j], books[j + 1]);
+                }
+            }
+        }
+    }
+    // Function to sort books by title using quick sort
+    void sortBooksByTitle() {
+        quickSort(books, 0, books.size() - 1);
+    }
+    // Partition function for quick sort
+    int partition(vector<Book>& books, int low, int high) {
+        // Choose the pivot as the last element
+        Book pivot = books[high];
+        int i = low - 1;
+
+        for (int j = low; j < high; ++j) {
+            if (books[j].title < pivot.title) {
+                ++i;
+                swap(books[i], books[j]);
+            }
+        }
+
+        // Place the pivot in the correct position
+        swap(books[i + 1], books[high]);
+        return i + 1;
+    }
+
+    // Quick sort function
+    void quickSort(vector<Book>& books, int low, int high) {
+        if (low < high) {
+            // Find the partition index
+            int pi = partition(books, low, high);
+
+            // Recursively sort elements before and after the partition
+            quickSort(books, low, pi - 1);
+            quickSort(books, pi + 1, high);
+        }
+    }    
+
+    // Function to randomize the order of books
+    void randomizeBooks() {
+        srand(time(0)); // Seed the random number generator
+        for (size_t i = books.size() - 1; i > 0; --i) {
+            // Generate a random index in the range [0, i]
+            size_t j = rand() % (i + 1);
+
+            // Swap the current book with the book at the random index
+            swap(books[i], books[j]);
+        }
     }
 
     // Display all books
@@ -93,13 +152,25 @@ public:
     }
 };
 
+
+
+
+
 int main() {
     Library library;
 
     // Add books
-    library.addBook(1, "1984", "George Orwell");
+    library.addBook(1, "Surfaces and Essences: Analogy", " Douglas R Hofstadter");
     library.addBook(2, "The Catcher in the Rye", "J.D. Salinger");
     library.addBook(3, "To Kill a Mockingbird", "Harper Lee");
+    library.addBook(4, "The Great Gatsby", "F. Scott Fitzgerald");
+    library.addBook(5, "Moby Dick", "Herman Melville");
+    library.addBook(6, "Pride and Prejudice", "Jane Austen");
+    library.addBook(7, "War and Peace", "Leo Tolstoy");
+    library.addBook(8, "The Hobbit", "J.R.R. Tolkien");
+    library.addBook(9, "Brave New World", "Aldous Huxley");
+    library.addBook(10, "Fahrenheit 451", "Ray Bradbury");
+    library.addBook(11, "Crime and Punishment", "Fyodor Dostoevsky");
 
     // Add users
     library.addUser(101, "Alice");
@@ -125,7 +196,23 @@ int main() {
     cout << "\nSearching for '1984':\n";
     library.searchBookByTitle("1984");
 
-    cout << "\nSorting books by title...\n";
+
+    cout << "\nSorting books by id with < operator...\n";
+    library.sortBooksByID();
+    library.displayBooks();
+
+    cout<< "\nRandomize books\n";
+    library.randomizeBooks();
+    library.displayBooks();
+    cout << "\nSorting books by author name with bubble sort...\n";
+    library.sortBooksByAuthor();
+    library.displayBooks();
+
+
+    cout<< "\nRandomize books\n";
+    library.randomizeBooks();
+    library.displayBooks();
+    cout << "\nSorting books by title name with quick sort...\n";
     library.sortBooksByTitle();
     library.displayBooks();
 
