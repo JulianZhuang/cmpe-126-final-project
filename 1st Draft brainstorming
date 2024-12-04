@@ -46,6 +46,40 @@ public:
         users.emplace_back(id, name);
     }
 
+    // Function to display all users
+    void displayUsers() {
+        if (users.empty()) {
+            cout << "No users in the library.\n";
+            return;
+        }
+        cout << "Users:\n";
+        for (const auto& user : users) {
+            cout << "ID: " << user.id << ", Name: " << user.name << endl;
+        }
+    }
+
+    // Function to remove a user by ID
+    void removeUser(int userId) {
+        auto it = find_if(users.begin(), users.end(), [userId](const User& user) {
+            return user.id == userId;
+        });
+
+        if (it != users.end()) {
+            cout << "Removing user: " << it->name << endl;
+            users.erase(it);
+        } else {
+            cout << "User with ID " << userId << " not found.\n";
+        }
+    }
+
+    // Function to check if a user exists
+    bool isUserExist(int userId) {
+        return any_of(users.begin(), users.end(), [userId](const User& user) {
+            return user.id == userId;
+        });
+    }
+
+
     // Borrow a book
     void borrowBook(int userId, int bookId) {
         borrowQueue.push({userId, bookId});
@@ -172,10 +206,33 @@ int main() {
     // Add users
     library.addUser(101, "Alice");
     library.addUser(102, "Bob");
+    library.addUser(103, "Quan");
+
+    cout << "\nAdding users...\n";
+    library.addUser(107, "Charlie");
+    library.addUser(106, "Diana");
+
+    cout << "\nDisplaying all users:\n";
+    library.displayUsers();
+
+    cout << "\nRemoving user with ID 102...\n";
+    library.removeUser(102);
+
+    cout << "\nChecking if user with ID 101 exists:\n";
+    if (library.isUserExist(101)) {
+        cout << "User with ID 101 exists.\n";
+    } else {
+        cout << "User with ID 101 does not exist.\n";
+    }
+
+    cout << "\nDisplaying all users after removal:\n";
+    library.displayUsers();
+
 
     // Borrow books
     library.borrowBook(101, 1);
     library.borrowBook(102, 2);
+    library.borrowBook(103, 5);
 
     // Display books before processing requests
     cout << "\nBooks before processing borrow requests:\n";
